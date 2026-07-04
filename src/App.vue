@@ -289,27 +289,27 @@ function fadd(state: SH4State, data: string) {
 
   const { dest, a, b } = setupArithmatic(state, data)
 
-  const res = a + b
+  const res = b + a
 
   writeOperand(state, dest, res)
-  return `${dest} = ${a} + ${b} -> ${res}`
+  return `${dest} = ${b} + ${a} -> ${res}`
 }
 
 function fsub(state: SH4State, data: string) {
   const { dest, a, b } = setupArithmatic(state, data)
 
-  const res = a - b
+  const res = b - a
 
   writeOperand(state, dest, res)
-  return `${dest} = ${a} - ${b} -> ${res}`
+  return `${dest} = ${b} - ${a} -> ${res}`
 }
 
 function fmul(state: SH4State, data: string) {
   const { dest, a, b } = setupArithmatic(state, data)
 
-  const res = a * b;
+  const res = b * a;
   writeOperand(state, dest, res)
-  return `${dest} = ${a} * ${b} -> ${res}`
+  return `${dest} = ${b} * ${a} -> ${res}`
 }
 
 function fdiv(state: SH4State, data: string) {
