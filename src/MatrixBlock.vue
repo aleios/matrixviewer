@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Iterate 4x4 matrix -->
-    <div class="grid grid-cols-4 gap-2 size-90">
+    <div class="grid grid-cols-4 gap-2 size-105">
       <div
           v-for="cell in displayedCells"
           :key="cell.index"
@@ -17,7 +17,7 @@
             :value="cell.value"
             @change="onCellChange(cell.index, $event)"
         />
-        <span v-else>{{ cell.value.toFixed(4) }}</span>
+        <span v-else>{{ formatCell(cell.value) }}</span>
       </div>
     </div>
     <div v-if="editable" class="flex gap-2 p-1">
@@ -106,6 +106,14 @@ function onCellChange(index: number, event: Event) {
     value: newValue,
   });
   matrix.value = updated
+}
+
+function formatCell(value: number) {
+  if(value === 0) {
+    return '0.0000'
+  }
+  const abs = Math.abs(value)
+  return (abs >= 1e6 || abs < 1e-4) ? value.toExponential(4) : value.toFixed(4);
 }
 
 function empty() {
