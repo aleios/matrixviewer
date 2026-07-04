@@ -12,7 +12,7 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss()
   ],
-  base: '/maxtrixviewer',
+  base: '/maxtrixviewer/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
