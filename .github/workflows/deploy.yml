@@ -2,7 +2,7 @@ name: Deploy static site to GH pages
 
 on:
   push:
-    branches: ['main']
+    branches: ['master']
 
 permissions:
   contents: read
