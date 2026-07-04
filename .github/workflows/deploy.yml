@@ -37,6 +37,6 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
             path: './dist'
-      - name: Deploy
+      - name: Deployment to pages
         id: 'deployment'
         uses: actions/deploy-pages@v4
