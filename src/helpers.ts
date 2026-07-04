@@ -1,6 +1,7 @@
 
 // -- Register regex --
-import type {SH4State} from "@/types.ts";
+import type {OperandOptions, InstructionResult, RegisterAccess, SH4State} from "@/types.ts";
+import {emptyRegisterAccess} from "@/regaccess.ts";
 
 export const registerRegex = /^(FR|XF)(\d+)$/i
 export const fvRegex = /^FV(\d+)$/i
@@ -53,6 +54,18 @@ export function isDoubleReg(reg: string) {
     return resolveDoubleRegName(reg) !== undefined
 }
 
+export function assertFrontBank(data: string, options: OperandOptions = {}) {
+    if (options.allowBackBank) {
+        return
+    }
+
+    const operand = data.trim().toUpperCase()
+
+    if (operand.startsWith("XF") || operand.startsWith("XD")) {
+        throw new Error(`XMTRX operand ${data} is only valid for supported FMOV`)
+    }
+}
+
 export function resolveDoubleReg(state: SH4State, reg: string) {
     reg = reg.trim()
     let m = drRegex.exec(reg)
@@ -97,4 +110,18 @@ export function resolveDoubleRegName(reg: string) {
         return [ "XD", n ]
     }
     return undefined
+}
+
+export function registerRange(base: number, count: number): number[] {
+    return Array.from({ length: count }, (_, offset) => base + offset)
+}
+
+export function instructionResult(log: string, access: Partial<RegisterAccess> = {}): InstructionResult {
+    return {
+        log,
+        access: {
+            ...emptyRegisterAccess(),
+            ...access
+        }
+    }
 }

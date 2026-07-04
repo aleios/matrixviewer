@@ -6,7 +6,11 @@
           v-for="cell in displayedCells"
           :key="cell.index"
           class="border text-center p-2 rounded-md flex flex-col items-center justify-center"
-          :class="{ 'bg-green-800 border-green-200': highlightedCells.has(cell.index) }"
+          :class="{
+            'bg-sky-900/70 border-sky-400': getCellAccessType(cell.index) === 'read',
+            'bg-green-900/70 border-green-400': getCellAccessType(cell.index) === 'write',
+            'bg-purple-900/80 border-purple-400': getCellAccessType(cell.index) === 'read-write',
+          }"
       >
         <span>{{ front ? `FR${cell.index}` : `XF${cell.index}`}}</span>
         <input
@@ -65,17 +69,34 @@ const displayedCells = computed(() => {
   });
 });
 
-const highlightedCells = ref(new Set<number>());
-function highlightCells(indexes: number[], clear: boolean = true) {
+type CellAccessType = "read" | "write" | "read-write";
+type CellHighlights = {
+  read?: number[]
+  write?: number[]
+}
+
+const highlightedCells = ref<Map<number, CellAccessType>>(new Map())
+function highlightCells(highlights: CellHighlights, clear: boolean = true) {
   if (clear) {
     clearHighlightedCells()
   }
-  highlightedCells.value = new Set(
-      indexes.filter((index) => index >= 0 && index < matrix.value.length)
-  );
+  for (const index of highlights.read || []) {
+    highlightedCells.value.set(index, "read")
+  }
+
+  for (const index of highlights.write || []) {
+    highlightedCells.value.set(
+        index,
+        highlightedCells.value.has(index) ? "read-write" : "write"
+    )
+  }
 }
 function clearHighlightedCells() {
-  highlightedCells.value = new Set();
+  highlightedCells.value.clear()
+}
+
+function getCellAccessType(index: number) {
+  return highlightedCells.value.get(index)
 }
 
 const emit = defineEmits<{
