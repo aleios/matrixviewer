@@ -12,19 +12,16 @@
 
 <script setup lang="ts">
 import Step from "@/Step.vue";
-import {ref, watch} from "vue";
-import type {InstructionIndex} from "@/types.ts";
+import { ref, watch } from "vue";
+import type { InstructionIndex } from "@/types.ts";
 
-const instrIndex = defineModel<InstructionIndex[]>('instrIndex')
+const instrIndex = defineModel<InstructionIndex[]>("instrIndex");
 
-const emit = defineEmits(['stepChanged'])
+const emit = defineEmits(["stepChanged"]);
 
 const selectedStep = ref(-1);
 
-watch(selectedStep, () => emit('stepChanged', selectedStep.value))
-
+watch(selectedStep, () => emit("stepChanged", selectedStep.value));
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -15,33 +15,39 @@
       step="any"
       class="text-center w-full bg-transparent outline-none border focus:border-gray-400"
       @change="onCellChange"
-    >
+    />
     <span v-else>{{ formatCell(data || 0) }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import {formatCell} from "@/helpers.ts";
+import { formatCell } from "@/helpers.ts";
 
-const props = withDefaults(defineProps<{
-  label: string
-  index?: number,
-  editable?: boolean,
-  accessType?: "none" | "read" | "write" | "read-write"
-}>(), {
-  index: undefined,
-  accessType: "none",
-  editable: false,
-});
-const data = defineModel<number>('data')
+const props = withDefaults(
+  defineProps<{
+    label: string;
+    index?: number;
+    editable?: boolean;
+    accessType?: "none" | "read" | "write" | "read-write";
+  }>(),
+  {
+    index: undefined,
+    accessType: "none",
+    editable: false,
+  },
+);
+const data = defineModel<number>("data");
 
 const emit = defineEmits<{
-  (e: "cell-change", payload: { index: number; row: number; col: number; value: number }): void
+  (
+    e: "cell-change",
+    payload: { index: number; row: number; col: number; value: number },
+  ): void;
 }>();
 
 function onCellChange(event: Event) {
-  if(!props.index) {
-    return
+  if (!props.index) {
+    return;
   }
 
   const target = event.target as HTMLInputElement;
@@ -60,5 +66,4 @@ function onCellChange(event: Event) {
     value: newValue,
   });
 }
-
 </script>

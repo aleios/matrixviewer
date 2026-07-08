@@ -5,23 +5,19 @@
 </template>
 
 <script setup lang="ts">
+import { provide } from "vue";
+import { TabsContextKey } from "@/tabs/data.ts";
 
-import {provide} from "vue";
-import {TabsContextKey} from "@/tabs/data.ts";
-
-const activeName = defineModel<string>('active', { default: '' })
+const activeName = defineModel<string>("active", { default: "" });
 
 function setActiveName(name: string) {
-  activeName.value = name
+  activeName.value = name;
 }
 
 provide(TabsContextKey, {
   activeName,
-  setActiveName
-})
-
+  setActiveName,
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

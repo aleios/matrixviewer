@@ -13,45 +13,36 @@
         @cell-change="onCellChange"
       />
     </div>
-    <div
-      v-if="editable"
-      class="flex gap-2 p-1"
-    >
-      <UIButton @click="empty">
-        Empty
-      </UIButton>
-      <UIButton @click="identity">
-        Identity
-      </UIButton>
+    <div v-if="editable" class="flex gap-2 p-1">
+      <UIButton @click="empty"> Empty </UIButton>
+      <UIButton @click="identity"> Identity </UIButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type {Matrix, CellAccessType, CellHighlights} from "@/types.ts";
-import {computed, ref} from "vue";
-import {matEmpty, matIdentity} from "@/matrixops.ts";
+import type { Matrix, CellAccessType, CellHighlights } from "@/types.ts";
+import { computed, ref } from "vue";
+import { matEmpty, matIdentity } from "@/matrixops.ts";
 import UIButton from "@/UIButton.vue";
 import RegisterCell from "@/RegisterCell.vue";
 
-const props = withDefaults(defineProps<{
-  front?: boolean
-  editable?: boolean
-  flipOrder?: boolean
-}>(), {
-  front: false,
-  editable: false,
-  flipOrder: false,
-});
+const props = withDefaults(
+  defineProps<{
+    front?: boolean;
+    editable?: boolean;
+    flipOrder?: boolean;
+  }>(),
+  {
+    front: false,
+    editable: false,
+    flipOrder: false,
+  },
+);
 
-const matrix = defineModel<Matrix>('matrix', {
-  default: () => [
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-  ]
-})
+const matrix = defineModel<Matrix>("matrix", {
+  default: () => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+});
 
 const displayedCells = computed(() => {
   return matrix.value.map((_, visualIndex) => {
@@ -66,41 +57,46 @@ const displayedCells = computed(() => {
   });
 });
 
-const highlightedCells = ref<Map<number, CellAccessType>>(new Map())
+const highlightedCells = ref<Map<number, CellAccessType>>(new Map());
 
 function highlightCells(highlights: CellHighlights, clear: boolean = true) {
   if (clear) {
-    clearHighlightedCells()
+    clearHighlightedCells();
   }
   for (const index of highlights.read || []) {
-    highlightedCells.value.set(index, "read")
+    highlightedCells.value.set(index, "read");
   }
 
   for (const index of highlights.write || []) {
     highlightedCells.value.set(
-        index,
-        highlightedCells.value.has(index) ? "read-write" : "write"
-    )
+      index,
+      highlightedCells.value.has(index) ? "read-write" : "write",
+    );
   }
 }
 
 function clearHighlightedCells() {
-  highlightedCells.value.clear()
+  highlightedCells.value.clear();
 }
 
 function getCellAccessType(index: number) {
-  return highlightedCells.value.get(index)
+  return highlightedCells.value.get(index);
 }
 
 function empty() {
-  matrix.value = matEmpty()
+  matrix.value = matEmpty();
 }
 
 function identity() {
-  matrix.value = matIdentity()
+  matrix.value = matIdentity();
 }
 
-function onCellChange(payload: { index: number; row: number; col: number; value: number }) {
+function onCellChange(payload: {
+  index: number;
+  row: number;
+  col: number;
+  value: number;
+}) {
   const updated = [...matrix.value] as Matrix;
   updated[payload.index] = payload.value;
   matrix.value = updated;

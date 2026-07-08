@@ -8,16 +8,12 @@
 </template>
 
 <script setup lang="ts">
-
-import type {InstructionIndex} from "@/types.ts";
+import type { InstructionIndex } from "@/types.ts";
 
 defineProps<{
-  step: InstructionIndex
-  selected: boolean
-}>()
-
+  step: InstructionIndex;
+  selected: boolean;
+}>();
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
