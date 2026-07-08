@@ -85,7 +85,7 @@
             </TabsContent>
           </TabsFrame>
         </Tabs>
-        <div class="flex flex-col gap-2 p-2 bg-gray-950">
+        <div class="flex flex-col gap-2 p-2 bg-gray-900">
           <span>Register Pairs</span>
           <PairsGrid :bank="currentBank0" />
           <PairsGrid
