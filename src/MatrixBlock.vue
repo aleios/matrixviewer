@@ -35,6 +35,7 @@
 import type { Matrix } from "@/types.ts";
 import { computed, ref } from "vue";
 import {matEmpty, matIdentity} from "@/matrixops.ts";
+import { formatCell } from "@/helpers.ts";
 import UIButton from "@/UIButton.vue";
 
 const props = withDefaults(defineProps<{
@@ -127,14 +128,6 @@ function onCellChange(index: number, event: Event) {
     value: newValue,
   });
   matrix.value = updated
-}
-
-function formatCell(value: number) {
-  if(value === 0) {
-    return '0.0000'
-  }
-  const abs = Math.abs(value)
-  return (abs >= 1e6 || abs < 1e-4) ? value.toExponential(4) : value.toFixed(4);
 }
 
 function empty() {

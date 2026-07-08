@@ -125,3 +125,11 @@ export function instructionResult(log: string, access: Partial<RegisterAccess> =
         }
     }
 }
+
+export function formatCell(value: number) {
+    if(value === 0) {
+        return '0.0000'
+    }
+    const abs = Math.abs(value)
+    return (abs >= 1e6 || abs < 1e-4) ? value.toExponential(4) : value.toFixed(4);
+}

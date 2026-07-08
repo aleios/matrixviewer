@@ -47,6 +47,11 @@
             </TabsContent>
           </TabsFrame>
         </Tabs>
+        <div class="flex flex-col gap-2 p-2 bg-gray-950">
+          <span>Register Pairs</span>
+          <PairsGrid :bank="currentBank0" />
+          <PairsGrid :bank="currentBank1" backBank />
+        </div>
         <div class="flex gap-2">
           <span>Flip cell order?</span><input type="checkbox" v-model="flipCellOrder" />
         </div>
@@ -81,6 +86,7 @@ import { useStorage } from '@vueuse/core'
 import UIButton from "@/UIButton.vue";
 import {emptyRegisterAccess} from "@/regaccess.js";
 import {opcodes} from "@/opcodes.ts";
+import PairsGrid from "@/PairsGrid.vue";
 
 const sh4DefaultValues: SH4State = {
   bank0: matEmpty(),
