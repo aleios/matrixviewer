@@ -1,6 +1,5 @@
-
 // -- Register regex --
-import type {OperandOptions, InstructionResult, RegisterAccess, SH4State} from "@/types.ts";
+import type {InstructionResult, OperandOptions, RegisterAccess, SH4State} from "@/types.ts";
 import {emptyRegisterAccess} from "@/regaccess.ts";
 
 export const registerRegex = /^(FR|XF)(\d+)$/i
@@ -10,7 +9,10 @@ export const xdRegex = /^XD(\d+)$/i
 export const immRegex = /^#(-?\d+(\.\d+)?)$/
 
 export function getBanksForState(state: SH4State) {
-    return state.frontBank0 ? { frontBank: state.bank0, backBank: state.bank1 } : { frontBank: state.bank1, backBank: state.bank0 }
+    return state.frontBank0 ? {frontBank: state.bank0, backBank: state.bank1} : {
+        frontBank: state.bank1,
+        backBank: state.bank0
+    }
 }
 
 export function pairToDouble(hi: number, lo: number) {
@@ -91,29 +93,29 @@ export function resolveDoubleReg(state: SH4State, reg: string) {
         throw new Error(`Invalid ${name} register: ${reg} (must be even and in range 0-15, got ${idx})`)
     }
 
-    return { bank: bank, i: idx }
+    return {bank: bank, i: idx}
 }
 
 export function resolveDoubleRegName(reg: string) {
     let m = drRegex.exec(reg)
-    if(m) {
+    if (m) {
         const n = parseInt(m[1]!)
         if (n % 2 != 0 || (n < 0 || n > 15))
             throw new Error(`Invalid DR register: ${reg} (must be even and in range 0-15, got ${n})`)
-        return [ "DR", n ]
+        return ["DR", n]
     }
     m = xdRegex.exec(reg)
-    if(m) {
+    if (m) {
         const n = parseInt(m[1]!)
         if (n % 2 != 0 || (n < 0 || n > 15))
             throw new Error(`Invalid XD register: ${reg} (must be even and in range 0-15, got ${n})`)
-        return [ "XD", n ]
+        return ["XD", n]
     }
     return undefined
 }
 
 export function registerRange(base: number, count: number): number[] {
-    return Array.from({ length: count }, (_, offset) => base + offset)
+    return Array.from({length: count}, (_, offset) => base + offset)
 }
 
 export function instructionResult(log: string, access: Partial<RegisterAccess> = {}): InstructionResult {
@@ -127,7 +129,7 @@ export function instructionResult(log: string, access: Partial<RegisterAccess> =
 }
 
 export function formatCell(value: number) {
-    if(value === 0) {
+    if (value === 0) {
         return '0.0000'
     }
     const abs = Math.abs(value)

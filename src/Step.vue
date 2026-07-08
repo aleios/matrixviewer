@@ -1,6 +1,9 @@
 <template>
-  <div class="w-full cursor-pointer p-0.5" :class="{ 'bg-green-800': selected }">
-    {{ step.index+1 }} {{ step.line }}
+  <div
+    class="w-full cursor-pointer p-0.5"
+    :class="{ 'bg-green-800': selected }"
+  >
+    {{ step.index + 1 }} {{ step.line }}
   </div>
 </template>
 
@@ -8,7 +11,7 @@
 
 import type {InstructionIndex} from "@/types.ts";
 
-const props = defineProps<{
+defineProps<{
   step: InstructionIndex
   selected: boolean
 }>()

@@ -1,35 +1,64 @@
 <template>
   <div class="flex flex-col">
-    <div class="p-4 bg-gray-950 select-none">SH4 Matrix Viewer</div>
+    <div class="p-4 bg-gray-950 select-none">
+      SH4 Matrix Viewer
+    </div>
     <div class="flex gap-6 p-4">
       <div class="w-1/4">
         <p>Assembly</p>
-        <textarea v-model="asmData" class="border w-full p-1" rows="10" @change="parseAsm"></textarea>
+        <textarea
+          v-model="asmData"
+          class="border w-full p-1"
+          rows="10"
+          @change="parseAsm"
+        />
         <div class="flex gap-2">
-          <UIButton @click="clearAll">Clear</UIButton>
-          <UIButton @click="importStr">Import</UIButton>
-          <UIButton @click="exportStr">Export</UIButton>
+          <UIButton @click="clearAll">
+            Clear
+          </UIButton>
+          <UIButton @click="importStr">
+            Import
+          </UIButton>
+          <UIButton @click="exportStr">
+            Export
+          </UIButton>
         </div>
         <p>Steps</p>
-        <StepsContainer :instrIndex="instrIndex" @step-changed="stepChanged" />
+        <StepsContainer
+          :instr-index="instrIndex"
+          @step-changed="stepChanged"
+        />
       </div>
       <div>
         Matrices
         <Tabs v-model:active="activeTab">
           <TabsHeading>
-            <TabsTrigger name="live">Live</TabsTrigger>
-            <TabsTrigger name="initial">Initial Values</TabsTrigger>
+            <TabsTrigger name="live">
+              Live
+            </TabsTrigger>
+            <TabsTrigger name="initial">
+              Initial Values
+            </TabsTrigger>
           </TabsHeading>
           <TabsFrame>
             <TabsContent name="live">
               <div class="flex gap-8">
                 <div>
                   <p>Front Bank</p>
-                  <MatrixBlock ref="frontBank" v-model:matrix="currentBank0" :front="true" :flip-order="flipCellOrder" />
+                  <MatrixBlock
+                    ref="frontBank"
+                    v-model:matrix="currentBank0"
+                    :front="true"
+                    :flip-order="flipCellOrder"
+                  />
                 </div>
                 <div>
                   <p>XMTRX</p>
-                  <MatrixBlock ref="xmtrx" v-model:matrix="currentBank1" :flip-order="flipCellOrder" />
+                  <MatrixBlock
+                    ref="xmtrx"
+                    v-model:matrix="currentBank1"
+                    :flip-order="flipCellOrder"
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -37,11 +66,20 @@
               <div class="flex gap-8">
                 <div>
                   <p>Front Bank</p>
-                  <MatrixBlock v-model:matrix="sh4Initial.bank0" :front="true" :editable="true" :flip-order="flipCellOrder" />
+                  <MatrixBlock
+                    v-model:matrix="sh4Initial.bank0"
+                    :front="true"
+                    :editable="true"
+                    :flip-order="flipCellOrder"
+                  />
                 </div>
                 <div>
                   <p>XMTRX</p>
-                  <MatrixBlock v-model:matrix="sh4Initial.bank1" :editable="true" :flip-order="flipCellOrder" />
+                  <MatrixBlock
+                    v-model:matrix="sh4Initial.bank1"
+                    :editable="true"
+                    :flip-order="flipCellOrder"
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -50,16 +88,25 @@
         <div class="flex flex-col gap-2 p-2 bg-gray-950">
           <span>Register Pairs</span>
           <PairsGrid :bank="currentBank0" />
-          <PairsGrid :bank="currentBank1" backBank />
+          <PairsGrid
+            :bank="currentBank1"
+            back-bank
+          />
         </div>
         <div class="flex gap-2">
-          <span>Flip cell order?</span><input type="checkbox" v-model="flipCellOrder" />
+          <span>Flip cell order?</span><input
+            v-model="flipCellOrder"
+            type="checkbox"
+          >
         </div>
         <div>
           <p>Log</p>
-          <textarea class="border w-full p-1" rows="10" readonly>
-{{ logs.join("\n") }}
-          </textarea>
+          <textarea
+            v-model="formattedLogs"
+            class="border w-full p-1"
+            rows="10"
+            readonly
+          />
         </div>
       </div>
     </div>
@@ -68,21 +115,13 @@
 
 <script setup lang="ts">
 import StepsContainer from "@/StepsContainer.vue";
-import {computed, reactive, ref, watch} from "vue";
-import {cloneDeep, flip} from "lodash-es";
+import {computed, ref, watch} from "vue";
+import {cloneDeep} from "lodash-es";
 import MatrixBlock from "@/MatrixBlock.vue";
-import type {
-  Matrix,
-  SH4State,
-  InstructionIndex,
-  SessionData,
-  InstructionResult,
-  RegisterAccess,
-  OperandOptions
-} from "@/types.ts";
+import type {InstructionIndex, InstructionResult, RegisterAccess, SessionData, SH4State} from "@/types.ts";
 import {matEmpty} from "@/matrixops.ts";
-import { Tabs, TabsHeading, TabsContent, TabsTrigger, TabsFrame } from "@/tabs";
-import { useStorage } from '@vueuse/core'
+import {Tabs, TabsContent, TabsFrame, TabsHeading, TabsTrigger} from "@/tabs";
+import {useStorage} from '@vueuse/core'
 import UIButton from "@/UIButton.vue";
 import {emptyRegisterAccess} from "@/regaccess.js";
 import {opcodes} from "@/opcodes.ts";
@@ -111,7 +150,9 @@ const sessionData = useStorage<SessionData>('sh4-state', {
 function useSessionField<K extends keyof SessionData>(key: K) {
   return computed({
     get: () => sessionData.value[key],
-    set: (value: SessionData[K]) => { sessionData.value[key] = value }
+    set: (value: SessionData[K]) => {
+      sessionData.value[key] = value
+    }
   })
 }
 
@@ -132,13 +173,15 @@ const xmtrx = ref<InstanceType<typeof MatrixBlock>>()
 const currentBank0 = computed(() => sh4.value.frontBank0 ? sh4.value.bank0 : sh4.value.bank1)
 const currentBank1 = computed(() => sh4.value.frontBank0 ? sh4.value.bank1 : sh4.value.bank0)
 
+const formattedLogs = computed(() => logs.value.join("\n"))
+
 function executeLine(state: SH4State, line: string): InstructionResult {
   let parts = line.split(" ");
   parts = [
     ...parts.slice(0, 1),
     parts.slice(1).join(" ")
   ];
-  if(parts.length < 1) {
+  if (parts.length < 1) {
     throw new Error("Line invalid")
   }
 
@@ -147,7 +190,7 @@ function executeLine(state: SH4State, line: string): InstructionResult {
 
   const resolvedOpcode = opcodes.find(o => o.name === op)
   let res: InstructionResult
-  if(resolvedOpcode) {
+  if (resolvedOpcode) {
     res = resolvedOpcode.func(state, args)
   } else {
     throw new Error(`Unknown opcode: ${op}`)
@@ -175,10 +218,10 @@ function clearAll() {
 
 function importStr() {
   const input = prompt("Enter string to import")
-  if(input) {
+  if (input) {
     try {
       sessionData.value = JSON.parse(input)
-    } catch (e) {
+    } catch {
       alert("Invalid Data")
       return
     }
@@ -201,12 +244,12 @@ function parseAsm() {
   const state = cloneDeep(sh4Initial.value)
 
   // Add initial state to stack
-  instrIndex.value.push({ index: -1, line: "Initial State" })
+  instrIndex.value.push({index: -1, line: "Initial State"})
   states.value.push(cloneDeep(state))
   logs.value.push("-- Starting state --")
   accesses.value.push(emptyRegisterAccess())
 
-  for(const [i, line] of lines.entries()) {
+  for (const [i, line] of lines.entries()) {
     // Skip comments
     if (line.startsWith('!') || line.startsWith(';') || line.startsWith('#')) {
       continue;
@@ -216,11 +259,11 @@ function parseAsm() {
     try {
       res = executeLine(state, line)
     } catch (e) {
-      logs.value.push(`Line ${i+1}: ${e}`)
+      logs.value.push(`Line ${i + 1}: ${e}`)
       continue;
     }
-    logs.value.push(`Line ${i+1}: ${res.log}`)
-    instrIndex.value.push({ index: i, line })
+    logs.value.push(`Line ${i + 1}: ${res.log}`)
+    instrIndex.value.push({index: i, line})
     states.value.push(cloneDeep(state))
     accesses.value.push(res.access)
   }
@@ -236,7 +279,7 @@ function showState(index: number) {
 
   const access = accesses.value[index] || emptyRegisterAccess()
 
-  if(frontBank.value) {
+  if (frontBank.value) {
     frontBank.value?.highlightCells({
       read: access.frRead,
       write: access.frWrite
@@ -244,7 +287,7 @@ function showState(index: number) {
     sh4.value.bank0 = cloneDeep(state.bank0) || matEmpty()
   }
 
-  if(xmtrx.value) {
+  if (xmtrx.value) {
     xmtrx.value.highlightCells({
       read: access.xfRead,
       write: access.xfWrite

@@ -1,6 +1,12 @@
 <template>
   <div class="border p-2 max-h-80 overflow-y-auto">
-    <Step v-for="(step, i) in instrIndex" :key="i" :step="step" :selected="selectedStep === i" @click="selectedStep = i" />
+    <Step
+      v-for="(step, i) in instrIndex"
+      :key="i"
+      :step="step"
+      :selected="selectedStep === i"
+      @click="selectedStep = i"
+    />
   </div>
 </template>
 

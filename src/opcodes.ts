@@ -1,13 +1,17 @@
 import type {OperandOptions, RegisterAccess, SH4State} from "@/types.ts";
 import {
-    assertFrontBank, doubleToPair,
+    assertFrontBank,
+    doubleToPair,
     drRegex,
     fvRegex,
-    getBanksForState, immRegex,
+    getBanksForState,
+    immRegex,
     instructionResult,
-    isDoubleReg, pairToDouble,
+    isDoubleReg,
+    pairToDouble,
     registerRange,
-    registerRegex, resolveDoubleReg
+    registerRegex,
+    resolveDoubleReg
 } from "@/helpers.ts";
 import {emptyRegisterAccess, trackRegisterAccess} from "@/regaccess.ts";
 
@@ -24,20 +28,20 @@ function resolveRegister(state: SH4State, data: string, options: OperandOptions 
     const kind = m[1]!.toUpperCase()
     const i = parseInt(m[2] || '')
 
-    if(i < 0 || i > 15) {
+    if (i < 0 || i > 15) {
         throw new Error(`Invalid register index: ${i}`)
     }
 
-    const { frontBank, backBank } = getBanksForState(state)
+    const {frontBank, backBank} = getBanksForState(state)
     const bank = kind === 'FR' ? frontBank : backBank
 
-    return { bank, i }
+    return {bank, i}
 }
 
 function readOperand(state: SH4State, data: string, access?: RegisterAccess, options?: OperandOptions) {
     const imm = immRegex.exec(data)
 
-    if(imm) {
+    if (imm) {
         return parseFloat(imm[1]!)
     }
 
@@ -47,11 +51,11 @@ function readOperand(state: SH4State, data: string, access?: RegisterAccess, opt
     // TODO: Pairwise double
     const dbl = resolveDoubleReg(state, data)
     if (dbl) {
-        const { bank, i } = dbl
+        const {bank, i} = dbl
         return pairToDouble(bank[i]!, bank[i + 1]!)
     }
 
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     return bank[i]!
 }
 
@@ -62,14 +66,14 @@ function writeOperand(state: SH4State, data: string, value: number, access?: Reg
 
     const dbl = resolveDoubleReg(state, data)
     if (dbl) {
-        const { bank, i } = dbl
+        const {bank, i} = dbl
         const pair = doubleToPair(value)
         bank[i] = pair[0]!
         bank[i + 1] = pair[1]!
         return
     }
 
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     bank[i] = value
 }
 
@@ -92,7 +96,7 @@ function frchg(state: SH4State, data: string) {
 }
 
 function fldi0(state: SH4State, data: string) {
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     // TODO: Check for correct register type
     bank[i] = 0.0
     return instructionResult(`${data} = 0.0`, {
@@ -101,7 +105,7 @@ function fldi0(state: SH4State, data: string) {
 }
 
 function fldi1(state: SH4State, data: string) {
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     bank[i] = 1.0
     return instructionResult(`${data} = 1.0`, {
         frWrite: [i]
@@ -151,14 +155,14 @@ function setupArithmatic(state: SH4State, data: string, access?: RegisterAccess)
     const a = readOperand(state, src, access)
     const b = readOperand(state, dest, access)
 
-    return { dest, a, b }
+    return {dest, a, b}
 }
 
 function fadd(state: SH4State, data: string) {
 
     const access = emptyRegisterAccess()
 
-    const { dest, a, b } = setupArithmatic(state, data, access)
+    const {dest, a, b} = setupArithmatic(state, data, access)
 
     const res = b + a
 
@@ -168,7 +172,7 @@ function fadd(state: SH4State, data: string) {
 
 function fsub(state: SH4State, data: string) {
     const access = emptyRegisterAccess()
-    const { dest, a, b } = setupArithmatic(state, data, access)
+    const {dest, a, b} = setupArithmatic(state, data, access)
 
     const res = b - a
 
@@ -178,7 +182,7 @@ function fsub(state: SH4State, data: string) {
 
 function fmul(state: SH4State, data: string) {
     const access = emptyRegisterAccess()
-    const { dest, a, b } = setupArithmatic(state, data, access)
+    const {dest, a, b} = setupArithmatic(state, data, access)
 
     const res = b * a;
     writeOperand(state, dest, res, access)
@@ -187,14 +191,14 @@ function fmul(state: SH4State, data: string) {
 
 function fdiv(state: SH4State, data: string) {
     const access = emptyRegisterAccess()
-    const { dest, a, b } = setupArithmatic(state, data, access)
+    const {dest, a, b} = setupArithmatic(state, data, access)
     const res = b / a;
     writeOperand(state, dest, res, access)
     return instructionResult(`${dest} = ${b} / ${a} -> ${res}`, access)
 }
 
 function fneg(state: SH4State, data: string) {
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     bank[i] = -bank[i]!
     return instructionResult(`${data} = ${bank[i]}`, {
         frWrite: [i],
@@ -203,7 +207,7 @@ function fneg(state: SH4State, data: string) {
 }
 
 function fsrra(state: SH4State, data: string) {
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     bank[i] = Math.fround(1.0 / Math.sqrt(bank[i]!))
     return instructionResult(`${data} = ${bank[i]}`, {
         frWrite: [i],
@@ -217,7 +221,7 @@ function ftrc(state: SH4State, data: string) {
         throw new Error(`Invalid FTRC operands: ${data}`)
     }
 
-    const { bank, i } = resolveRegister(state, operands[0]!)
+    const {bank, i} = resolveRegister(state, operands[0]!)
     state.fpul = Math.trunc(bank[i]!)
     return instructionResult(`FPUL = trunc(${operands[0]!} -> ${state.fpul})`, {
         frRead: [i]
@@ -258,7 +262,7 @@ function fsca(state: SH4State, data: string) {
 }
 
 function fsqrt(state: SH4State, data: string) {
-    const { bank, i } = resolveRegister(state, data)
+    const {bank, i} = resolveRegister(state, data)
     bank[i] = Math.sqrt(bank[i]!)
     return instructionResult(`${data} = sqrt(${bank[i]})`, {
         frWrite: [i],
@@ -282,11 +286,11 @@ function fipr(state: SH4State, data: string) {
     const base0 = parseInt(m1[1]!)
     const base1 = parseInt(m2[1]!)
 
-    if(base0 % 4 != 0 || base1 % 4 != 0) {
+    if (base0 % 4 != 0 || base1 % 4 != 0) {
         throw new Error(`FIPR requires FVm and FVn to be multiples of 4 (got ${base0}, ${base1})`)
     }
 
-    if(base0 < 0 || base0 > 15 || base1 < 0 || base1 > 15) {
+    if (base0 < 0 || base0 > 15 || base1 < 0 || base1 > 15) {
         throw new Error(`FIPR FV out of range (got ${base0}, ${base1})`)
     }
 
@@ -333,21 +337,21 @@ function fmac(state: SH4State, data: string) {
 }
 
 export const opcodes = [
-    { name: "FRCHG", func: frchg },
-    { name: "FSCHG", func: fschg },
-    { name: 'FLDI0', func: fldi0 },
-    { name: 'FLDI1', func: fldi1 },
-    { name: 'FMOV', func: fmov },
-    { name: 'FADD', func: fadd },
-    { name: 'FSUB', func: fsub },
-    { name: 'FMUL', func: fmul },
-    { name: 'FDIV', func: fdiv },
-    { name: 'FNEG', func: fneg },
-    { name: 'FSRRA', func: fsrra },
-    { name: 'FTRC', func: ftrc },
-    { name: 'FSCA', func: fsca },
-    { name: 'FIPR', func: fipr },
-    { name: 'FTRV', func: ftrv },
-    { name: 'FMAC', func: fmac },
-    { name: 'FSQRT', func: fsqrt }
+    {name: "FRCHG", func: frchg},
+    {name: "FSCHG", func: fschg},
+    {name: 'FLDI0', func: fldi0},
+    {name: 'FLDI1', func: fldi1},
+    {name: 'FMOV', func: fmov},
+    {name: 'FADD', func: fadd},
+    {name: 'FSUB', func: fsub},
+    {name: 'FMUL', func: fmul},
+    {name: 'FDIV', func: fdiv},
+    {name: 'FNEG', func: fneg},
+    {name: 'FSRRA', func: fsrra},
+    {name: 'FTRC', func: ftrc},
+    {name: 'FSCA', func: fsca},
+    {name: 'FIPR', func: fipr},
+    {name: 'FTRV', func: ftrv},
+    {name: 'FMAC', func: fmac},
+    {name: 'FSQRT', func: fsqrt}
 ]

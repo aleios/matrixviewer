@@ -1,5 +1,9 @@
 <template>
-  <div class="cursor-pointer rounded-md rounded-b-none p-1 border select-none" :class="active ? 'bg-green-700' : ''" @click="ctx?.setActiveName(name)">
+  <div
+    class="cursor-pointer rounded-md rounded-b-none p-1 border select-none"
+    :class="active ? 'bg-green-700' : ''"
+    @click="ctx?.setActiveName(name)"
+  >
     <slot />
   </div>
 </template>

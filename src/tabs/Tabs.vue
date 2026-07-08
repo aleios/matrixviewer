@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 
-import {provide, ref} from "vue";
+import {provide} from "vue";
 import {TabsContextKey} from "@/tabs/data.ts";
 
 const activeName = defineModel<string>('active', { default: '' })

@@ -3,39 +3,46 @@
     <!-- Iterate 4x4 matrix -->
     <div class="grid grid-cols-4 gap-2 size-105">
       <div
-          v-for="cell in displayedCells"
-          :key="cell.index"
-          class="border text-center p-2 rounded-md flex flex-col items-center justify-center"
-          :class="{
-            'bg-sky-900/70 border-sky-400': getCellAccessType(cell.index) === 'read',
-            'bg-green-900/70 border-green-400': getCellAccessType(cell.index) === 'write',
-            'bg-purple-900/80 border-purple-400': getCellAccessType(cell.index) === 'read-write',
-          }"
+        v-for="cell in displayedCells"
+        :key="cell.index"
+        class="border text-center p-2 rounded-md flex flex-col items-center justify-center"
+        :class="{
+          'bg-sky-900/70 border-sky-400': getCellAccessType(cell.index) === 'read',
+          'bg-green-900/70 border-green-400': getCellAccessType(cell.index) === 'write',
+          'bg-purple-900/80 border-purple-400': getCellAccessType(cell.index) === 'read-write',
+        }"
       >
-        <span>{{ front ? `FR${cell.index}` : `XF${cell.index}`}}</span>
+        <span>{{ front ? `FR${cell.index}` : `XF${cell.index}` }}</span>
         <input
-            v-if="editable"
-            type="number"
-            step="any"
-            class="text-center w-full bg-transparent outline-none border focus:border-gray-400"
-            :value="cell.value"
-            @change="onCellChange(cell.index, $event)"
-        />
+          v-if="editable"
+          type="number"
+          step="any"
+          class="text-center w-full bg-transparent outline-none border focus:border-gray-400"
+          :value="cell.value"
+          @change="onCellChange(cell.index, $event)"
+        >
         <span v-else>{{ formatCell(cell.value) }}</span>
       </div>
     </div>
-    <div v-if="editable" class="flex gap-2 p-1">
-      <UIButton @click="empty">Empty</UIButton>
-      <UIButton @click="identity">Identity</UIButton>
+    <div
+      v-if="editable"
+      class="flex gap-2 p-1"
+    >
+      <UIButton @click="empty">
+        Empty
+      </UIButton>
+      <UIButton @click="identity">
+        Identity
+      </UIButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Matrix } from "@/types.ts";
-import { computed, ref } from "vue";
+import type {Matrix} from "@/types.ts";
+import {computed, ref} from "vue";
 import {matEmpty, matIdentity} from "@/matrixops.ts";
-import { formatCell } from "@/helpers.ts";
+import {formatCell} from "@/helpers.ts";
 import UIButton from "@/UIButton.vue";
 
 const props = withDefaults(defineProps<{
@@ -77,6 +84,7 @@ type CellHighlights = {
 }
 
 const highlightedCells = ref<Map<number, CellAccessType>>(new Map())
+
 function highlightCells(highlights: CellHighlights, clear: boolean = true) {
   if (clear) {
     clearHighlightedCells()
@@ -92,6 +100,7 @@ function highlightCells(highlights: CellHighlights, clear: boolean = true) {
     )
   }
 }
+
 function clearHighlightedCells() {
   highlightedCells.value.clear()
 }
@@ -103,10 +112,6 @@ function getCellAccessType(index: number) {
 const emit = defineEmits<{
   (e: "cell-change", payload: { index: number; row: number; col: number; value: number }): void
 }>();
-
-function getElement(matrix: Matrix, row: number, col: number): number {
-  return matrix[row * 4 + col] || 0;
-}
 
 function onCellChange(index: number, event: Event) {
   const target = event.target as HTMLInputElement;

@@ -19,11 +19,11 @@ function pushUniqueAccess(target: number[], values: number[]) {
 }
 
 export function trackRegisterAccess(state: SH4State, data: string, access?: RegisterAccess, type?: "read" | "write") {
-    if(!access) {
+    if (!access) {
         return
     }
 
-    if(!type) {
+    if (!type) {
         type = "read"
     }
 
