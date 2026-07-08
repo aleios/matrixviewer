@@ -7,6 +7,8 @@ export function emptyRegisterAccess(): RegisterAccess {
     frWrite: [],
     xfRead: [],
     xfWrite: [],
+    fpulWrite: false,
+    fpulRead: false
   };
 }
 
