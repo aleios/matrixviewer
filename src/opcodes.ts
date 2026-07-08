@@ -224,7 +224,8 @@ function ftrc(state: SH4State, data: string) {
     const {bank, i} = resolveRegister(state, operands[0]!)
     state.fpul = Math.trunc(bank[i]!)
     return instructionResult(`FPUL = trunc(${operands[0]!} -> ${state.fpul})`, {
-        frRead: [i]
+        frRead: [i],
+        fpulWrite: true
     });
 }
 
@@ -257,7 +258,8 @@ function fsca(state: SH4State, data: string) {
     bank[base + 1] = Math.cos(d)
 
     return instructionResult(`FR${base} = sin(2.0*PI*FPUL/65536) -> ${bank[base]}, FR${base + 1} = cos(2.0*PI*FPUL/65536) -> ${bank[base + 1]}`, {
-        frWrite: [base, base + 1]
+        frWrite: [base, base + 1],
+        fpulRead: true
     })
 }
 

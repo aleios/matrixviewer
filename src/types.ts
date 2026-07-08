@@ -13,11 +13,15 @@ export interface SH4State {
     fpul: number
 }
 
+export type RegisterAccessType = 'read' | 'write' | 'read-write' | 'none'
+
 export type RegisterAccess = {
     frRead: number[]
     frWrite: number[]
     xfRead: number[]
     xfWrite: number[]
+    fpulWrite: boolean,
+    fpulRead: boolean
 }
 
 export interface SessionData {
@@ -40,4 +44,10 @@ export type InstructionResult = {
 export type OperandOptions = {
     allowBackBank?: boolean,
     pairwiseSingle?: boolean
+}
+
+export type CellAccessType = "read" | "write" | "read-write";
+export type CellHighlights = {
+    read?: number[]
+    write?: number[]
 }

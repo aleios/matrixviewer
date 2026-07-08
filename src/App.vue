@@ -28,6 +28,15 @@
           :instr-index="instrIndex"
           @step-changed="stepChanged"
         />
+        <div class="bg-gray-950 p-1">
+          <p>Help</p>
+          <p>Clicking a step shows what happened to a register during that operation</p>
+          <ul>
+            <li><span class="bg-green-900/70">Green</span> = Write</li>
+            <li><span class="bg-sky-900/70">Blue</span> = Read</li>
+            <li><span class="bg-purple-900/80">Purple</span> = Read/Write</li>
+          </ul>
+        </div>
       </div>
       <div>
         Matrices
@@ -86,9 +95,18 @@
           </TabsFrame>
         </Tabs>
         <div class="flex flex-col gap-2 p-2 bg-gray-900">
+          <RegisterCell
+            v-model:data="sh4.fpul"
+            label="FPUL"
+            :access-type="fpulHighlight"
+          />
           <span>Register Pairs</span>
-          <PairsGrid :bank="currentBank0" />
           <PairsGrid
+            ref="frontBankPairs"
+            :bank="currentBank0"
+          />
+          <PairsGrid
+            ref="xmtrxPairs"
             :bank="currentBank1"
             back-bank
           />
@@ -118,7 +136,14 @@ import StepsContainer from "@/StepsContainer.vue";
 import {computed, ref, watch} from "vue";
 import {cloneDeep} from "lodash-es";
 import MatrixBlock from "@/MatrixBlock.vue";
-import type {InstructionIndex, InstructionResult, RegisterAccess, SessionData, SH4State} from "@/types.ts";
+import type {
+  InstructionIndex,
+  InstructionResult,
+  RegisterAccess,
+  RegisterAccessType,
+  SessionData,
+  SH4State
+} from "@/types.ts";
 import {matEmpty} from "@/matrixops.ts";
 import {Tabs, TabsContent, TabsFrame, TabsHeading, TabsTrigger} from "@/tabs";
 import {useStorage} from '@vueuse/core'
@@ -126,6 +151,7 @@ import UIButton from "@/UIButton.vue";
 import {emptyRegisterAccess} from "@/regaccess.js";
 import {opcodes} from "@/opcodes.ts";
 import PairsGrid from "@/PairsGrid.vue";
+import RegisterCell from "@/RegisterCell.vue";
 
 const sh4DefaultValues: SH4State = {
   bank0: matEmpty(),
@@ -169,11 +195,15 @@ const flipCellOrder = ref(false)
 
 const frontBank = ref<InstanceType<typeof MatrixBlock>>()
 const xmtrx = ref<InstanceType<typeof MatrixBlock>>()
+const frontBankPairs = ref<InstanceType<typeof PairsGrid>>()
+const xmtrxPairs = ref<InstanceType<typeof PairsGrid>>()
 
 const currentBank0 = computed(() => sh4.value.frontBank0 ? sh4.value.bank0 : sh4.value.bank1)
 const currentBank1 = computed(() => sh4.value.frontBank0 ? sh4.value.bank1 : sh4.value.bank0)
 
 const formattedLogs = computed(() => logs.value.join("\n"))
+
+const fpulHighlight = ref<RegisterAccessType>('none')
 
 function executeLine(state: SH4State, line: string): InstructionResult {
   let parts = line.split(" ");
@@ -295,7 +325,33 @@ function showState(index: number) {
     sh4.value.bank1 = cloneDeep(state.bank1) || matEmpty()
   }
 
+  // Pairs
+  if (frontBankPairs.value) {
+    frontBankPairs.value?.highlightCells({
+      read: access.frRead,
+      write: access.frWrite
+    })
+  }
+  if (xmtrxPairs.value) {
+    xmtrxPairs.value?.highlightCells({
+      read: access.xfRead,
+      write: access.xfWrite
+    })
+  }
+
+  // TODO: generalize this
+  if (access.fpulWrite && access.fpulRead) {
+    fpulHighlight.value = 'read-write'
+  } else if (access.fpulWrite) {
+    fpulHighlight.value = 'write'
+  } else if (access.fpulRead) {
+    fpulHighlight.value = 'read'
+  } else {
+    fpulHighlight.value = 'none'
+  }
+
   sh4.value.frontBank0 = state.frontBank0
+  sh4.value.fpul = state.fpul
 }
 
 function stepChanged(index: number) {
