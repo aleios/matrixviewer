@@ -46,7 +46,7 @@ const emit = defineEmits<{
 }>();
 
 function onCellChange(event: Event) {
-  if (!props.index) {
+  if (props.index === undefined) {
     return;
   }
 
