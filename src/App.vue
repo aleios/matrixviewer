@@ -200,7 +200,16 @@ function executeLine(state: SH4State, line: string): InstructionResult {
     throw new Error("Line invalid");
   }
 
-  const op = parts[0]!.toUpperCase();
+  const opSplit = parts[0]!.toUpperCase().split(".");
+  const op = opSplit[0];
+
+  // Special case: Accept, but ignore attributes for FMOV.S and FMOV.D
+  if(opSplit.length > 1) {
+    if(op !== 'FMOV' || (opSplit[1] !== 'S' && opSplit[1] !== 'D')) {
+      throw new Error(`Unknown opcode: ${parts[0]!.toUpperCase()}`);
+    }
+  }
+
   const args = parts[1] || "";
 
   const resolvedOpcode = opcodes.find((o) => o.name === op);
