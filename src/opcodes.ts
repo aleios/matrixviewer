@@ -1,4 +1,4 @@
-import type { OperandOptions, RegisterAccess, SH4State } from "@/types.ts";
+import type {OperandOptions, RegisterAccess, SH4State} from "@/types.ts";
 import {
   assertFrontBank,
   doubleToPair,
@@ -13,7 +13,7 @@ import {
   registerRegex,
   resolveDoubleReg,
 } from "@/helpers.ts";
-import { emptyRegisterAccess, trackRegisterAccess } from "@/regaccess.ts";
+import {emptyRegisterAccess, trackRegisterAccess} from "@/regaccess.ts";
 
 function resolveRegister(
   state: SH4State,
@@ -342,7 +342,55 @@ function fipr(state: SH4State, data: string) {
 }
 
 function ftrv(state: SH4State, data: string) {
-  return instructionResult(`FTRV not implemented`);
+  const operands = splitOperands(data);
+
+  if (operands.length !== 2) {
+    throw new Error('Invalid FTRV instruction')
+  }
+
+  if(operands[0]!.trim().toUpperCase() != "XMTRX") {
+    throw new Error(`FTRV requires XMTRX as the first operand (got ${operands[0]})`)
+  }
+
+  const m1 = fvRegex.exec(operands[1]!);
+
+  if (!m1) {
+    throw new Error(`FTRV requires FVn as the second operand (got ${operands[1]})`)
+  }
+
+  const base0 = parseInt(m1[1]!);
+
+  if(base0 % 4 != 0) {
+    throw new Error(`FTRV requires FVn to be a multiple of 4 (got FR${base0})`)
+  }
+
+  if (base0 < 0 || base0 > 15) {
+    throw new Error(`FTRV requires FVn to be between 0 and 15 (got FR${base0})`)
+  }
+
+  const { frontBank, backBank } = getBanksForState(state);
+
+  // TODO: Handle special cases. Inf,Nan, etc.
+  const fr0 = frontBank[base0];
+  const fr1 = frontBank[base0 + 1];
+  const fr2 = frontBank[base0 + 2];
+  const fr3 = frontBank[base0 + 3];
+
+  // FRn = sum(XF(r*4) * FR(n))
+  // FRn+1 = sum(XF(1+r*4) * FR(n+1))
+  for (let r = 0; r < 4; r++) {
+    frontBank[base0 + r] =
+      backBank[r]      * fr0 +
+      backBank[r + 4]  * fr1 +
+      backBank[r + 8]  * fr2 +
+      backBank[r + 12] * fr3;
+  }
+
+  return instructionResult(`${data} -> FR${base0}`, {
+    frRead: [...registerRange(base0, 4)],
+    frWrite: [...registerRange(base0, 4)],
+    xfRead: [...registerRange(0, 16)],
+  })
 }
 
 function fmac(state: SH4State, data: string) {
